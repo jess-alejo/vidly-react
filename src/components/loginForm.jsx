@@ -1,6 +1,8 @@
 import React from "react"
 import Form from "./common/form"
 import Joi from "joi-browser"
+import { login } from "../services/authService"
+import { toast } from "react-toastify"
 
 class LoginForm extends Form {
   state = {
@@ -13,12 +15,23 @@ class LoginForm extends Form {
 
   schema = {
     email: Joi.string().required().email().label("Email"),
-    password: Joi.string().required().min(6).label("Password"),
+    password: Joi.string().required().label("Password"),
   }
 
-  doSubmit = () => {
-    // send api request
-    console.log("Submitted")
+  doSubmit = async () => {
+    try {
+      const { data } = this.state
+      const { data: auth } = await login(data.email, data.password)
+      localStorage.setItem("token", auth.authToken)
+      this.props.history.push("/")
+    } catch (error) {
+      if (error.response && error.response.status === 400) {
+        const errors = { ...this.state.errors }
+        const { data } = error.response
+        errors["email"] = data.message
+        this.setState({ errors })
+      }
+    }
   }
 
   render() {

@@ -13,13 +13,15 @@ class RegisterForm extends Form {
 
   doSubmit = async () => {
     try {
-      await register(this.state.data)
+      const { data } = await register(this.state.data)
+      localStorage.setItem("token", data.authToken)
+      this.props.history.push("/")
     } catch (error) {
       if (error.response && error.response.status === 400) {
         const errors = { ...this.state.errors }
         const { data } = error.response
-        for (const e in data) {
-          errors[e] = data[e]
+        for (const e in data.errors) {
+          errors[e] = data.errors[e]
         }
 
         this.setState({ errors })
