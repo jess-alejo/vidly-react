@@ -21,14 +21,14 @@ class LoginForm extends Form {
   doSubmit = async () => {
     try {
       const { data } = this.state
-      const { data: auth } = await login(data.email, data.password)
-      localStorage.setItem("token", auth.authToken)
+      const { data: authToken } = await login(data.email, data.password)
+      localStorage.setItem("token", authToken)
       this.props.history.push("/")
-    } catch (error) {
-      if (error.response && error.response.status === 400) {
+    } catch (ex) {
+      if (ex.response && ex.response.status === 400) {
         const errors = { ...this.state.errors }
-        const { data } = error.response
-        errors["email"] = data.message
+        const { message: errorMessage } = ex.response.data
+        errors["email"] = errorMessage
         this.setState({ errors })
       }
     }
