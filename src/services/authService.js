@@ -5,6 +5,8 @@ import { apiUrl } from "../config.json"
 const authUrl = apiUrl + "/auth"
 const tokenKey = "authToken"
 
+http.setAuthToken(getAuthToken())
+
 export async function login(email, password) {
   const { data } = await http.post(authUrl, { email, password })
   localStorage.setItem(tokenKey, data.authToken)
@@ -20,13 +22,21 @@ export function loginWithToken(token) {
   localStorage.setItem("authToken", token)
 }
 
+export function isAdminUser() {
+  const currentUser = getCurrentUser()
+  return currentUser && currentUser.role === "admin"
+}
+
 export function getCurrentUser() {
   try {
-    const authToken = localStorage.getItem(tokenKey)
-    return jwtDecode(authToken)
+    return jwtDecode(getAuthToken())
   } catch (ex) {
     return null
   }
+}
+
+export function getAuthToken() {
+  return localStorage.getItem(tokenKey)
 }
 
 export default {
@@ -34,4 +44,6 @@ export default {
   logout,
   loginWithToken,
   getCurrentUser,
+  getAuthToken,
+  isAdminUser,
 }
